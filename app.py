@@ -29,13 +29,15 @@ GROQ_MODEL = "llama-3.1-8b-instant"
 def get_groq_client():
     global client
 
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
 
-    if api_key:
-        client = Groq(api_key=api_key)
-        return client
+    print("API key exists:", bool(api_key))
 
-    raise ValueError("GROQ_API_KEY not found")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not found")
+
+    client = Groq(api_key=api_key)
+    return client
 
 class PipelineTracker:
     """Tracks retries and errors across pipeline execution."""
