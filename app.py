@@ -27,15 +27,20 @@ client = None
 GROQ_MODEL = "llama-3.1-8b-instant"
 
 def get_groq_client():
-    """Initializes and returns the Groq API client."""
     global client
-    # Force reload env variables to pick up any changes to .env
+
     load_dotenv(override=True)
+
     api_key = os.getenv("GROQ_API_KEY")
+
+    print("DEBUG - API KEY EXISTS:", api_key is not None)
+    print("DEBUG - API KEY VALUE:", api_key)
+
     if api_key and api_key != "your_groq_api_key_here":
         client = Groq(api_key=api_key)
         return client
-    raise ValueError("GROQ_API_KEY is missing or set to the default placeholder. Please edit your .env file.")
+
+    raise ValueError(f"GROQ_API_KEY problem. Value received: {api_key}")
 
 class PipelineTracker:
     """Tracks retries and errors across pipeline execution."""
