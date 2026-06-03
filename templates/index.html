@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherForge AI - Multi-Stage System Configuration Compiler</title>
+    <meta name="description" content="Translate natural language application descriptions into complete, executable JSON system architectures using a multi-stage AI pipeline compiler.">
+    <!-- Google Fonts: Outfit and Fira Code for code blocks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS RESET & VARIABLES */
+        :root {
+            --bg-base: #070b13;
+            --bg-surface: #0e1626;
+            --bg-panel: #131d31;
+            --bg-input: #1a263d;
+            --border-color: #263554;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --primary: #00f2fe;
+            --primary-glow: rgba(0, 242, 254, 0.15);
+            --primary-dark: #00b4d8;
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.15);
+            --error: #ef4444;
+            --error-glow: rgba(239, 68, 68, 0.15);
+            
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-premium: 0 10px 30px -10px rgba(2, 4, 8, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* SCROLLBAR STYLING */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* GENERAL LAYOUT */
+        .app-container {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR SECTION */
+        aside {
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), #4facfe);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: #070b13;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .input-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .word-counter {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .word-counter.warning {
+            color: var(--error);
+        }
+        .word-counter.valid {
+            color: var(--success);
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: var(--transition-smooth);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            outline: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #00b4d8);
+            color: #070b13;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-secondary);
+        }
+
+        /* PIPELINE PROGRESS VIEWER */
+        .pipeline-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .pipeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pipeline-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .pipeline-steps::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background-color: var(--border-color);
+            z-index: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+            opacity: 0.6;
+            transition: var(--transition-smooth);
+        }
+
+        .step-item.active {
+            opacity: 1;
+        }
+
+        .step-item.completed {
+            opacity: 1;
+        }
+
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--bg-surface);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .step-item.active .step-icon {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .step-item.completed .step-icon {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: #070b13;
+        }
+
+        .step-item.failed .step-icon {
+            background-color: var(--error);
+            border-color: var(--error);
+            color: #ffffff;
+        }
+
+        .step-spinner {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border: 2px solid transparent;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        .step-item.active .step-spinner {
+            display: block;
+        }
+
+        .step-content {
+            flex-grow: 1;
+            padding-top: 4px;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .step-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .step-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .step-repair-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: var(--warning-glow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+            font-size: 10px;
+            font-weight: 500;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* MAIN CONTENT SECTION */
+        main {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: var(--bg-base);
+            height: 100vh;
+        }
+
+        /* VIEWPORT STATES */
+        .view-state {
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* WELCOME STATE */
+        .welcome-view {
+            justify-content: center;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .welcome-hero {
+            margin-bottom: 32px;
+        }
+
+        .welcome-hero h2 {
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-hero p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .suggestion-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-premium);
+        }
+
+        .suggestion-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px -5px rgba(0, 242, 254, 0.1), var(--shadow-premium);
+        }
+
+        .suggestion-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .suggestion-card h3::after {
+            content: '→';
+            font-size: 16px;
+            opacity: 0.5;
+            transition: var(--transition-smooth);
+        }
+
+        .suggestion-card:hover h3::after {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+
+        .suggestion-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* COMPILER OUTPUT STATE */
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .output-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        /* METADATA PANEL */
+        .meta-panel {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meta-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 110px;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .meta-card-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-card-value {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            color: var(--primary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background-color: var(--success-glow);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-glow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+
+        .badge-error {
+            background-color: var(--error-glow);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+        }
+
+        /* CODE BLOCK VIEWER */
+        .code-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .code-bar {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-tab-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .code-tab-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-weight: 500;
+            width: auto;
+        }
+
+        .code-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-secondary);
+        }
+
+        .code-viewport {
+            flex-grow: 1;
+            padding: 20px;
+            overflow: auto;
+            margin: 0;
+            background-color: #0b0f19;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: inherit;
+        }
+
+        /* SYNTAX HIGHLIGHTING COLORS */
+        .json-key { color: #38bdf8; font-weight: 500; }
+        .json-string { color: #34d399; }
+        .json-number { color: #f59e0b; }
+        .json-boolean { color: #ec4899; }
+        .json-null { color: #64748b; }
+
+        /* ERROR DISPLAY BOX */
+        .error-alert {
+            background-color: var(--error-glow);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            color: #fca5a5;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .error-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .error-alert-body {
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* BENCHMARK EVALUATOR STATE */
+        .view-state {
+            gap: 32px;
+        }
+
+        .eval-loader-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .eval-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .eval-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .eval-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .eval-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .eval-card-icon.success {
+            background-color: var(--success-glow);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .eval-card-icon.latency {
+            background-color: var(--primary-glow);
+            color: var(--primary);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        .eval-card-icon.retries {
+            background-color: var(--warning-glow);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .eval-card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .eval-card-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .eval-card-value {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .eval-table-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .eval-table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-panel);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        .eval-prompt-cell {
+            font-weight: 500;
+            color: var(--text-primary);
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .eval-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /* ANIMATIONS */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            aside {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                height: auto;
+                max-height: none;
+                overflow-y: visible;
+            }
+            main {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: visible;
+            }
+            .code-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- SIDEBAR -->
+        <aside>
+            <div class="brand">
+                <div class="brand-logo">Æ</div>
+                <div class="brand-text">
+                    <h1>AetherForge AI</h1>
+                    <p>Specification Compiler</p>
+                </div>
+            </div>
+
+            <!-- INPUT COMPONENT -->
+            <div class="input-group">
+                <div class="input-label">
+                    <span>Describe your Application</span>
+                    <span id="word-count" class="word-counter warning">0 words (min 10)</span>
+                </div>
+                <textarea id="prompt-input" placeholder="e.g. Build a secure patient booking clinic application where patients can select doctors, schedule dates, receive email reminders, and administrators can review medical charts on a visual panel. Include standard authentication and role limits."></textarea>
+            </div>
+
+            <div class="btn-container">
+                <button id="generate-btn" class="btn-primary" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Compile Config
+                </button>
+                <button id="evaluate-btn" class="btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                    Run System Benchmark
+                </button>
+            </div>
+
+            <!-- PIPELINE STAGES -->
+            <div class="pipeline-section">
+                <h3 class="pipeline-title">Compilation Pipeline</h3>
+                <div class="pipeline-steps">
+                    
+                    <div class="step-item" id="step-1">
+                        <div class="step-icon">
+                            <span class="step-num">1</span>
+                            <div class="step-spinner"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-header">
+                                <span class="step-name">Intent Parsing</span>
+                                <span class="step-time" id="step-time-1">--</span>
+                            </div>
+                            <p class="step-desc">Extract features, entities, roles</p>
+                            <div class="step-repair-alert hidden" id="step-repair-1">⚠️ Correcting response JSON...</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item" id="step-2">
+                        <div class="step-icon">
+                            <span class="step-num">2</span>
+                            <div class="step-spinner"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-header">
+                                <span class="step-name">System Architecture</span>
+                                <span class="step-time" id="step-time-2">--</span>
+                            </div>
+                            <p class="step-desc">Design workflows & permissions</p>
+                            <div class="step-repair-alert hidden" id="step-repair-2">⚠️ Correcting response JSON...</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item" id="step-3">
+                        <div class="step-icon">
+                            <span class="step-num">3</span>
+                            <div class="step-spinner"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-header">
+                                <span class="step-name">Schema Synthesis</span>
+                                <span class="step-time" id="step-time-3">--</span>
+                            </div>
+                            <p class="step-desc">Generate layout, DB & API specs</p>
+                            <div class="step-repair-alert hidden" id="step-repair-3">⚠️ Correcting response JSON...</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item" id="step-4">
+                        <div class="step-icon">
+                            <span class="step-num">4</span>
+                            <div class="step-spinner"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-header">
+                                <span class="step-name">Consistency Validation</span>
+                                <span class="step-time" id="step-time-4">--</span>
+                            </div>
+                            <p class="step-desc">Verify structural mapping & keys</p>
+                            <div class="step-repair-alert hidden" id="step-repair-4">⚠️ Repairing schema conflicts...</div>
+                        </div>
+                    </div>
+
+                    <div class="step-item" id="step-5">
+                        <div class="step-icon">
+                            <span class="step-num">5</span>
+                            <div class="step-spinner"></div>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-header">
+                                <span class="step-name">Artifact Assembly</span>
+                                <span class="step-time" id="step-time-5">--</span>
+                            </div>
+                            <p class="step-desc">Compile integrated configuration</p>
+                            <div class="step-repair-alert hidden" id="step-repair-5">⚠️ Finalizing repair parameters...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEWPORTS -->
+        <main>
+            
+            <!-- WELCOME STATE -->
+            <div id="welcome-view" class="view-state">
+                <div class="welcome-view">
+                    <div class="welcome-hero">
+                        <h2>Multi-Stage AI Config Compiler</h2>
+                        <p>Feed a natural language application outline into AetherForge. The compiler executes 5 sequential, self-healing pipeline stages powered by Groq Llama 3.3 to generate a fully executable system specification.</p>
+                    </div>
+                    
+                    <div class="suggestions-grid">
+                        <div class="suggestion-card" onclick="populateExample(1)">
+                            <h3>Enterprise CRM</h3>
+                            <p>Build a CRM with login, contact profiles, analytics dashboard, role-based controls, and a premium subscriptions gateway with stripe payments.</p>
+                        </div>
+                        <div class="suggestion-card" onclick="populateExample(2)">
+                            <h3>Task Project Workspace</h3>
+                            <p>Create a project management tool with tasks, teams, task status boards, calendar deadlines, file upload buckets, and notifications.</p>
+                        </div>
+                        <div class="suggestion-card" onclick="populateExample(3)">
+                            <h3>Modern E-Commerce Store</h3>
+                            <p>Build an online marketplace with catalog tables, dynamic search filters, cart states, safe checkout, and a full vendor admin management console.</p>
+                        </div>
+                        <div class="suggestion-card" onclick="populateExample(4)">
+                            <h3>Clinic Appointment Broker</h3>
+                            <p>Make a booking system for a medical clinic. Include appointments matching, doctor profiles, patient charts, SMS reminders, and health summaries.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPILER OUTPUT STATE -->
+            <div id="output-view" class="view-state hidden">
+                <div class="output-header">
+                    <div>
+                        <h2 id="output-app-name">Application Specification</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;" id="output-timestamp">Generated on --</p>
+                    </div>
+                    
+                    <!-- METADATA SUB-BAR -->
+                    <div class="meta-panel">
+                        <div class="meta-card">
+                            <span class="meta-card-label">Latency</span>
+                            <span class="meta-card-value" id="meta-latency">0.00s</span>
+                        </div>
+                        <div class="meta-card">
+                            <span class="meta-card-label">Total Retries</span>
+                            <span class="meta-card-value" id="meta-retries">0</span>
+                        </div>
+                        <div class="meta-card">
+                            <span class="meta-card-label">Validation</span>
+                            <div style="margin-top: 2px;">
+                                <span id="meta-status-badge" class="badge badge-success">Passed</span>
+                            </div>
+                        </div>
+                        <div class="meta-card">
+                            <span class="meta-card-label">Execution Readiness</span>
+                            <span class="meta-card-value" id="meta-execution-score">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULATION LOGS -->
+                <div id="simulation-panel" class="hidden" style="background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-premium);">
+                    <h3 style="font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Runtime Execution Simulation Log</span>
+                        <span id="simulation-status-badge" class="badge badge-success">Passed</span>
+                    </h3>
+                    <div id="simulation-checks" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13px;">
+                        <!-- Dynamically populated checks -->
+                    </div>
+                </div>
+
+                <!-- ERROR DIALOG -->
+                <div id="error-dialog" class="error-alert hidden">
+                    <div class="error-alert-header">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <span>Compilation Failed (Partial Specification Returned)</span>
+                    </div>
+                    <div class="error-alert-body" id="error-text">
+                        Error logs are written to the console workspace.
+                    </div>
+                </div>
+
+                <!-- CODE VIEWER -->
+                <div class="code-container">
+                    <div class="code-bar">
+                        <div class="code-tab-title" id="code-filename">compiled_app_config.json</div>
+                        <div class="code-actions">
+                            <button class="code-btn" id="copy-btn">Copy Specification</button>
+                            <button class="code-btn" id="download-btn">Download JSON</button>
+                        </div>
+                    </div>
+                    <pre class="code-viewport"><code id="code-viewer">Loading spec...</code></pre>
+                </div>
+            </div>
+
+            <!-- EVALUATION BENCHMARK STATE -->
+            <div id="eval-view" class="view-state hidden">
+                <div class="output-header">
+                    <div>
+                        <h2>System Compilation Benchmarks</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Performance matrix of the pipeline across 20 standard evaluation prompts (10 Product Specs + 10 Edge Cases).</p>
+                    </div>
+                </div>
+
+                <!-- BENCHMARK ACTIVE LOADER -->
+                <div id="eval-loader" class="eval-loader-card hidden">
+                    <div class="eval-spinner"></div>
+                    <h3 style="font-size: 18px; font-weight: 600;" id="eval-loader-text">Running Compiler Benchmark (0/20)...</h3>
+                    <p style="font-size: 13px; color: var(--text-secondary); max-width: 450px;">Evaluating sequentially to maintain stable Groq RPM rate limits. You can click on completed rows to inspect their generated compiler specifications.</p>
+                </div>
+
+                <!-- BENCHMARK METRIC CARDS -->
+                <div id="eval-results-container" style="display: flex; flex-direction: column; gap: 24px;">
+                    <div class="eval-grid">
+                        <div class="eval-card">
+                            <div class="eval-card-icon success" id="eval-success-icon">✓</div>
+                            <div class="eval-card-info">
+                                <span class="eval-card-label">Success Rate</span>
+                                <span class="eval-card-value" id="eval-rate-val">0%</span>
+                            </div>
+                        </div>
+                        <div class="eval-card">
+                            <div class="eval-card-icon latency">⏱</div>
+                            <div class="eval-card-info">
+                                <span class="eval-card-label">Avg Latency</span>
+                                <span class="eval-card-value" id="eval-latency-val">0.00s</span>
+                            </div>
+                        </div>
+                        <div class="eval-card">
+                            <div class="eval-card-icon retries">↻</div>
+                            <div class="eval-card-info">
+                                <span class="eval-card-label">Total Retries</span>
+                                <span class="eval-card-value" id="eval-retries-val">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- METRICS TABLE -->
+                    <div class="eval-table-container">
+                        <div class="eval-table-header">Test Prompts Compilation Metrics</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Benchmark Evaluation Target</th>
+                                    <th style="width: 120px;">Latency</th>
+                                    <th style="width: 100px;">Retries</th>
+                                    <th style="width: 120px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eval-table-body">
+                                <!-- Dynamically populated rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- UTILITIES AND INTERACTIVE SCRIPTS -->
+    <script>
+        const promptInput = document.getElementById('prompt-input');
+        const wordCountDisplay = document.getElementById('word-count');
+        const generateBtn = document.getElementById('generate-btn');
+        const evaluateBtn = document.getElementById('evaluate-btn');
+        
+        const welcomeView = document.getElementById('welcome-view');
+        const outputView = document.getElementById('output-view');
+        const evalView = document.getElementById('eval-view');
+        
+        const codeViewer = document.getElementById('code-viewer');
+        const copyBtn = document.getElementById('copy-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        
+        let lastCompiledJSON = null;
+        let lastCompiledAppName = 'app_config';
+        let evalPrompts = [];
+
+        // Fetch Evaluation prompts listing at startup
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchEvaluationPrompts();
+        });
+
+        // 1. WORD COUNT VALIDATION
+        promptInput.addEventListener('input', () => {
+            const text = promptInput.value.trim();
+            const words = text ? text.split(/\s+/).filter(Boolean) : [];
+            const count = words.length;
+            
+            wordCountDisplay.textContent = `${count} word${count !== 1 ? 's' : ''} (min 10)`;
+            
+            if (count >= 10) {
+                wordCountDisplay.className = 'word-counter valid';
+                generateBtn.removeAttribute('disabled');
+            } else {
+                wordCountDisplay.className = 'word-counter warning';
+                generateBtn.setAttribute('disabled', 'true');
+            }
+        });
+
+        // 2. SUGGESTION CARD UTILS
+        const suggestions = {
+            1: "Build a CRM with login, contacts, dashboard, role-based access, and premium plan with payments",
+            2: "Create a project management tool with tasks, teams, deadlines and file uploads",
+            3: "Build an ecommerce store with products, cart, checkout and admin panel",
+            4: "Make a booking system for a clinic with appointments, doctors, patients and reminders"
+        };
+
+        function populateExample(id) {
+            promptInput.value = suggestions[id];
+            promptInput.dispatchEvent(new Event('input'));
+        }
+
+        // 3. CODE SYNTAX HIGHLIGHTER
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            // Escape HTML
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Highlight keys, strings, numbers, booleans, nulls
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return `<span class="json-${cls}">${match}</span>`;
+            });
+        }
+
+        // 4. RESET STAGE VISUALS
+        function resetStages() {
+            for (let i = 1; i <= 5; i++) {
+                const item = document.getElementById(`step-${i}`);
+                item.className = 'step-item';
+                document.getElementById(`step-time-${i}`).textContent = '--';
+                document.getElementById(`step-repair-${i}`).classList.add('hidden');
+                
+                // Reset icon numbers
+                const numSpan = item.querySelector('.step-num');
+                numSpan.textContent = i;
+            }
+        }
+
+        // 5. COPY TO CLIPBOARD
+        copyBtn.addEventListener('click', () => {
+            if (!lastCompiledJSON) return;
+            navigator.clipboard.writeText(JSON.stringify(lastCompiledJSON, null, 2))
+                .then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copied! ✓';
+                    copyBtn.style.borderColor = 'var(--success)';
+                    copyBtn.style.color = 'var(--success)';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                        copyBtn.style.borderColor = '';
+                        copyBtn.style.color = '';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+        });
+
+        // 6. DOWNLOAD JSON FILE
+        downloadBtn.addEventListener('click', () => {
+            if (!lastCompiledJSON) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(lastCompiledJSON, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `${lastCompiledAppName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_config.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        // 7. STREAM GENERATION TRIGGER
+        generateBtn.addEventListener('click', async () => {
+            const promptText = promptInput.value.trim();
+            if (!promptText) return;
+
+            // Update visible view state
+            welcomeView.classList.add('hidden');
+            evalView.classList.add('hidden');
+            outputView.classList.remove('hidden');
+            
+            // Clean outputs, reset stats and state
+            codeViewer.textContent = 'Initiating compiler pipeline connection...';
+            document.getElementById('error-dialog').classList.add('hidden');
+            document.getElementById('simulation-panel').classList.add('hidden');
+            document.getElementById('meta-latency').textContent = '0.00s';
+            document.getElementById('meta-retries').textContent = '0';
+            document.getElementById('meta-execution-score').textContent = '--';
+            
+            // Reset and configure stage steps UI
+            resetStages();
+            
+            generateBtn.setAttribute('disabled', 'true');
+            evaluateBtn.setAttribute('disabled', 'true');
+            promptInput.setAttribute('readonly', 'true');
+
+            let timers = {};
+            let stageStartTimes = {};
+            
+            function startStageTimer(stageNum) {
+                stageStartTimes[stageNum] = Date.now();
+                const timeEl = document.getElementById(`step-time-${stageNum}`);
+                timers[stageNum] = setInterval(() => {
+                    const elapsed = ((Date.now() - stageStartTimes[stageNum]) / 1000).toFixed(1);
+                    timeEl.textContent = `${elapsed}s`;
+                }, 100);
+            }
+
+            function stopStageTimer(stageNum) {
+                if (timers[stageNum]) {
+                    clearInterval(timers[stageNum]);
+                    const elapsed = ((Date.now() - stageStartTimes[stageNum]) / 1000).toFixed(2);
+                    document.getElementById(`step-time-${stageNum}`).textContent = `${elapsed}s`;
+                }
+            }
+
+            try {
+                // Call streaming route
+                const response = await fetch('/generate?stream=true', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify({ prompt: promptText })
+                });
+
+                if (!response.ok) {
+                    let errMsg = `HTTP Error status: ${response.status}`;
+                    try {
+                        const errJson = await response.json();
+                        if (errJson && errJson.message) {
+                            errMsg = errJson.message;
+                        }
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep partial line in buffer
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+                        
+                        try {
+                            const data = JSON.parse(trimmed.slice(6));
+                            
+                            // Process compilation event
+                            if (data.event === 'stage_start') {
+                                const stepEl = document.getElementById(`step-${data.stage}`);
+                                stepEl.className = 'step-item active';
+                                startStageTimer(data.stage);
+                                codeViewer.textContent = `Compiling [Stage ${data.stage}: ${data.stage_name}]...\nWaiting for Groq API response.`;
+                            } 
+                            else if (data.event === 'stage_success') {
+                                stopStageTimer(data.stage);
+                                const stepEl = document.getElementById(`step-${data.stage}`);
+                                stepEl.className = 'step-item completed';
+                                const checkIcon = stepEl.querySelector('.step-num');
+                                checkIcon.textContent = '✓';
+                                codeViewer.textContent = `Stage ${data.stage} completed. Formulating inputs for next stage...`;
+                            }
+                            else if (data.event === 'stage_repair') {
+                                const alertEl = document.getElementById(`step-repair-${data.stage}`);
+                                alertEl.classList.remove('hidden');
+                                codeViewer.textContent = `⚠️ Stage ${data.stage} JSON format invalid.\nAttempting self-healing Groq repair call...`;
+                            }
+                            else if (data.event === 'stage_error') {
+                                stopStageTimer(data.stage);
+                                const stepEl = document.getElementById(`step-${data.stage}`);
+                                stepEl.className = 'step-item failed';
+                                const crossIcon = stepEl.querySelector('.step-num');
+                                crossIcon.textContent = '✗';
+                            }
+                            else if (data.event === 'clarification_needed') {
+                                alert(`Clarification Needed:\n${data.message}`);
+                                welcomeView.classList.remove('hidden');
+                                outputView.classList.add('hidden');
+                                return;
+                            }
+                            else if (data.event === 'pipeline_complete') {
+                                lastCompiledJSON = data.result;
+                                lastCompiledAppName = data.result.app_name || 'app_config';
+                                
+                                // Update metadata cards
+                                document.getElementById('output-app-name').textContent = lastCompiledAppName;
+                                document.getElementById('output-timestamp').textContent = `Generated on ${data.result.generated_at || new Date().toISOString()}`;
+                                document.getElementById('meta-latency').textContent = `${data.latency_seconds}s`;
+                                document.getElementById('meta-retries').textContent = data.total_retries;
+                                
+                                // Check validation status from output
+                                const valBadge = document.getElementById('meta-status-badge');
+                                const report = data.result.validation_report;
+                                const passed = report && report.passed !== false && !data.result.error_flag;
+                                
+                                if (passed) {
+                                    valBadge.className = 'badge badge-success';
+                                    valBadge.textContent = 'Passed';
+                                } else {
+                                    valBadge.className = 'badge badge-error';
+                                    valBadge.textContent = 'Failed';
+                                }
+
+                                // Update execution checks logs
+                                const simPanel = document.getElementById('simulation-panel');
+                                const simChecks = document.getElementById('simulation-checks');
+                                const simScoreEl = document.getElementById('meta-execution-score');
+                                const simStatusBadge = document.getElementById('simulation-status-badge');
+                                
+                                const sim = data.result.execution_simulation;
+                                if (sim) {
+                                    simPanel.classList.remove('hidden');
+                                    simScoreEl.textContent = `${sim.score}%`;
+                                    simStatusBadge.textContent = sim.status.toUpperCase();
+                                    simStatusBadge.className = sim.status === 'ready' ? 'badge badge-success' : 'badge badge-error';
+                                    
+                                    simChecks.innerHTML = '';
+                                    sim.checks_run.forEach(c => {
+                                        const checkItem = document.createElement('div');
+                                        checkItem.style.padding = '8px';
+                                        checkItem.style.borderRadius = 'var(--radius-md)';
+                                        checkItem.style.backgroundColor = 'rgba(255,255,255,0.02)';
+                                        checkItem.style.border = '1px solid var(--border-color)';
+                                        checkItem.style.display = 'flex';
+                                        checkItem.style.alignItems = 'center';
+                                        checkItem.style.gap = '10px';
+                                        
+                                        const icon = document.createElement('span');
+                                        icon.textContent = c.passed ? '✓' : '✗';
+                                        icon.style.color = c.passed ? 'var(--success)' : 'var(--error)';
+                                        icon.style.fontWeight = 'bold';
+                                        
+                                        const text = document.createElement('div');
+                                        text.innerHTML = `<strong>${c.name}</strong><br><span style="font-size: 11px; color: var(--text-secondary);">${c.details}</span>`;
+                                        
+                                        checkItem.appendChild(icon);
+                                        checkItem.appendChild(text);
+                                        simChecks.appendChild(checkItem);
+                                    });
+                                } else {
+                                    simPanel.classList.add('hidden');
+                                    simScoreEl.textContent = '--';
+                                }
+
+                                // Show errors if present
+                                if (!data.success || data.result.error_flag) {
+                                    const errorDialog = document.getElementById('error-dialog');
+                                    const errorText = document.getElementById('error-text');
+                                    errorDialog.classList.remove('hidden');
+                                    errorText.textContent = data.result.error || 'The pipeline experienced JSON validation schema failures.';
+                                }
+
+                                // Render code
+                                codeViewer.innerHTML = syntaxHighlight(data.result);
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse SSE payload", e);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Generation error:", err);
+                codeViewer.textContent = `Error in pipeline channel:\n${err.message}`;
+                
+                // Mark active stage as failed
+                const activeStep = document.querySelector('.step-item.active');
+                if (activeStep) {
+                    activeStep.className = 'step-item failed';
+                    const icon = activeStep.querySelector('.step-num');
+                    icon.textContent = '✗';
+                    const stageNum = activeStep.id.replace('step-', '');
+                    stopStageTimer(stageNum);
+                }
+            } finally {
+                // Restore inputs
+                generateBtn.removeAttribute('disabled');
+                evaluateBtn.removeAttribute('disabled');
+                promptInput.removeAttribute('readonly');
+            }
+        });
+
+        // 8. EVALUATION RUNNER
+        async function fetchEvaluationPrompts() {
+            try {
+                const response = await fetch('/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}) // Discovery request
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    evalPrompts = data.prompts_list || [];
+                    renderEvaluationTable();
+                }
+            } catch (e) {
+                console.error("Failed to load evaluation dataset", e);
+            }
+        }
+
+        function renderEvaluationTable() {
+            const tableBody = document.getElementById('eval-table-body');
+            tableBody.innerHTML = '';
+            
+            evalPrompts.forEach((p, idx) => {
+                const row = document.createElement('tr');
+                row.id = `eval-row-${idx}`;
+                
+                const promptCell = document.createElement('td');
+                promptCell.className = 'eval-prompt-cell';
+                
+                const typeBadge = document.createElement('span');
+                typeBadge.style.fontSize = '9px';
+                typeBadge.style.fontWeight = '600';
+                typeBadge.style.textTransform = 'uppercase';
+                typeBadge.style.marginRight = '8px';
+                typeBadge.style.padding = '2px 4px';
+                typeBadge.style.borderRadius = '3px';
+                
+                if (p.type === 'real') {
+                    typeBadge.textContent = 'Real Product';
+                    typeBadge.style.backgroundColor = 'rgba(0, 242, 254, 0.1)';
+                    typeBadge.style.color = 'var(--primary)';
+                    typeBadge.style.border = '1px solid rgba(0, 242, 254, 0.2)';
+                } else {
+                    typeBadge.textContent = p.type.replace('edge_', '');
+                    typeBadge.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+                    typeBadge.style.color = 'var(--warning)';
+                    typeBadge.style.border = '1px solid rgba(245, 158, 11, 0.2)';
+                }
+                
+                promptCell.appendChild(typeBadge);
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = p.prompt;
+                promptCell.appendChild(textSpan);
+                promptCell.title = p.prompt;
+                
+                const latencyCell = document.createElement('td');
+                latencyCell.id = `eval-latency-${idx}`;
+                latencyCell.textContent = '--';
+                latencyCell.style.fontFamily = 'Fira Code, monospace';
+                
+                const retriesCell = document.createElement('td');
+                retriesCell.id = `eval-retries-${idx}`;
+                retriesCell.textContent = '--';
+                retriesCell.style.fontFamily = 'Fira Code, monospace';
+                
+                const statusCell = document.createElement('td');
+                statusCell.id = `eval-status-${idx}`;
+                const badge = document.createElement('span');
+                badge.className = 'eval-status-badge';
+                badge.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                badge.style.color = 'var(--text-muted)';
+                badge.textContent = 'Not Started';
+                statusCell.appendChild(badge);
+                
+                row.appendChild(promptCell);
+                row.appendChild(latencyCell);
+                row.appendChild(retriesCell);
+                row.appendChild(statusCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateRowStatus(idx, status, errMsg = '') {
+            const statusCell = document.getElementById(`eval-status-${idx}`);
+            statusCell.innerHTML = '';
+            
+            const badge = document.createElement('span');
+            badge.className = 'eval-status-badge';
+            
+            if (status === 'running') {
+                badge.style.backgroundColor = 'var(--primary-glow)';
+                badge.style.color = 'var(--primary)';
+                badge.style.border = '1px solid rgba(0, 242, 254, 0.2)';
+                badge.textContent = 'Running...';
+            } else if (status === 'failed') {
+                badge.className = 'eval-status-badge badge-error';
+                badge.textContent = 'Failed';
+                if (errMsg) {
+                    badge.title = errMsg;
+                    badge.style.cursor = 'help';
+                }
+            }
+            statusCell.appendChild(badge);
+        }
+
+        function updateRowMetrics(idx, data) {
+            const latencyCell = document.getElementById(`eval-latency-${idx}`);
+            const retriesCell = document.getElementById(`eval-retries-${idx}`);
+            const statusCell = document.getElementById(`eval-status-${idx}`);
+            
+            latencyCell.textContent = `${data.latency_seconds}s`;
+            retriesCell.textContent = data.retries;
+            
+            statusCell.innerHTML = '';
+            const badge = document.createElement('span');
+            if (data.success) {
+                badge.className = 'eval-status-badge badge-success';
+                badge.textContent = 'Success';
+            } else {
+                badge.className = 'eval-status-badge badge-error';
+                badge.textContent = 'Failed';
+                if (data.error) {
+                    badge.title = data.error;
+                    badge.style.cursor = 'help';
+                }
+            }
+            statusCell.appendChild(badge);
+            
+            // Map row click behavior
+            const row = document.getElementById(`eval-row-${idx}`);
+            row.style.cursor = 'pointer';
+            row.onclick = () => {
+                if (data.result) {
+                    lastCompiledJSON = data.result;
+                    lastCompiledAppName = data.result.app_name || 'app_config';
+                    
+                    // Switch to Output View
+                    welcomeView.classList.add('hidden');
+                    evalView.classList.add('hidden');
+                    outputView.classList.remove('hidden');
+                    
+                    // Populate UI
+                    document.getElementById('output-app-name').textContent = lastCompiledAppName;
+                    document.getElementById('output-timestamp').textContent = `Benchmark Loaded (Prompt #${idx+1})`;
+                    document.getElementById('meta-latency').textContent = `${data.latency_seconds}s`;
+                    document.getElementById('meta-retries').textContent = data.retries;
+                    
+                    // Update validation and execution badges
+                    const valBadge = document.getElementById('meta-status-badge');
+                    const passed = data.result.validation_report && data.result.validation_report.passed !== false && !data.result.error_flag;
+                    valBadge.className = passed ? 'badge badge-success' : 'badge badge-error';
+                    valBadge.textContent = passed ? 'Passed' : 'Failed';
+                    
+                    // Simulation
+                    const sim = data.result.execution_simulation;
+                    const simScoreEl = document.getElementById('meta-execution-score');
+                    const simPanel = document.getElementById('simulation-panel');
+                    const simChecks = document.getElementById('simulation-checks');
+                    const simStatusBadge = document.getElementById('simulation-status-badge');
+                    
+                    if (sim) {
+                        simPanel.classList.remove('hidden');
+                        simScoreEl.textContent = `${sim.score}%`;
+                        simStatusBadge.textContent = sim.status.toUpperCase();
+                        simStatusBadge.className = sim.status === 'ready' ? 'badge badge-success' : 'badge badge-error';
+                        
+                        simChecks.innerHTML = '';
+                        sim.checks_run.forEach(c => {
+                            const checkItem = document.createElement('div');
+                            checkItem.style.padding = '8px';
+                            checkItem.style.borderRadius = 'var(--radius-md)';
+                            checkItem.style.backgroundColor = 'rgba(255,255,255,0.02)';
+                            checkItem.style.border = '1px solid var(--border-color)';
+                            checkItem.style.display = 'flex';
+                            checkItem.style.alignItems = 'center';
+                            checkItem.style.gap = '10px';
+                            
+                            const icon = document.createElement('span');
+                            icon.textContent = c.passed ? '✓' : '✗';
+                            icon.style.color = c.passed ? 'var(--success)' : 'var(--error)';
+                            icon.style.fontWeight = 'bold';
+                            
+                            const text = document.createElement('div');
+                            text.innerHTML = `<strong>${c.name}</strong><br><span style="font-size: 11px; color: var(--text-secondary);">${c.details}</span>`;
+                            
+                            checkItem.appendChild(icon);
+                            checkItem.appendChild(text);
+                            simChecks.appendChild(checkItem);
+                        });
+                    }
+                    
+                    codeViewer.innerHTML = syntaxHighlight(data.result);
+                }
+            };
+        }
+
+        evaluateBtn.addEventListener('click', async () => {
+            // Update view states
+            welcomeView.classList.add('hidden');
+            outputView.classList.add('hidden');
+            evalView.classList.remove('hidden');
+            
+            document.getElementById('eval-loader').classList.remove('hidden');
+            document.getElementById('eval-results-container').classList.add('hidden');
+            
+            generateBtn.setAttribute('disabled', 'true');
+            evaluateBtn.setAttribute('disabled', 'true');
+            promptInput.setAttribute('readonly', 'true');
+
+            // Reset Table rows statuses to "Not Started"
+            renderEvaluationTable();
+
+            let totalLatency = 0;
+            let totalRetries = 0;
+            let successCount = 0;
+            let completedCount = 0;
+
+            try {
+                // Sequential index-by-index execution loop to prevent timeout and rate-limit fatigues
+                for (let i = 0; i < evalPrompts.length; i++) {
+                    const evalLoaderText = document.getElementById('eval-loader-text');
+                    evalLoaderText.textContent = `Running Compiler Benchmark (${i + 1}/${evalPrompts.length})...`;
+                    
+                    updateRowStatus(i, 'running');
+
+                    try {
+                        const response = await fetch('/evaluate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prompt_index: i })
+                        });
+
+                        if (!response.ok) {
+                            let errMsg = `Evaluation endpoint failed with status: ${response.status}`;
+                            try {
+                                const errJson = await response.json();
+                                if (errJson && errJson.message) {
+                                    errMsg = errJson.message;
+                                }
+                            } catch (e) {}
+                            throw new Error(errMsg);
+                        }
+
+                        const data = await response.json();
+                        updateRowMetrics(i, data);
+
+                        // Accumulate totals
+                        totalLatency += data.latency_seconds;
+                        totalRetries += data.retries;
+                        if (data.success) {
+                            successCount++;
+                        }
+                    } catch (rowErr) {
+                        console.error(`Error on evaluation row ${i}:`, rowErr);
+                        updateRowStatus(i, 'failed', rowErr.message);
+                    }
+
+                    completedCount++;
+
+                    // Dynamically update overall metrics cards
+                    document.getElementById('eval-rate-val').textContent = `${Math.round((successCount / completedCount) * 100)}%`;
+                    document.getElementById('eval-latency-val').textContent = `${(totalLatency / completedCount).toFixed(2)}s`;
+                    document.getElementById('eval-retries-val').textContent = totalRetries;
+                }
+
+                // Adjust icon colors based on success rate
+                const successIcon = document.getElementById('eval-success-icon');
+                const rate = Math.round((successCount / evalPrompts.length) * 100);
+                if (rate >= 80) {
+                    successIcon.style.color = 'var(--success)';
+                    successIcon.style.backgroundColor = 'var(--success-glow)';
+                    successIcon.textContent = '✓';
+                } else {
+                    successIcon.style.color = 'var(--error)';
+                    successIcon.style.backgroundColor = 'var(--error-glow)';
+                    successIcon.textContent = '⚠';
+                }
+
+                document.getElementById('eval-loader').classList.add('hidden');
+                document.getElementById('eval-results-container').classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Evaluation run error:", err);
+                alert(`System Benchmark Run failed: ${err.message}`);
+                welcomeView.classList.remove('hidden');
+                evalView.classList.add('hidden');
+            } finally {
+                generateBtn.removeAttribute('disabled');
+                evaluateBtn.removeAttribute('disabled');
+                promptInput.removeAttribute('readonly');
+            }
+        });
+    </script>
+</body>
+</html>
