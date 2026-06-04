@@ -110,7 +110,8 @@ def call_groq_api(system_prompt, user_prompt, tracker, stage_name):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1
+            temperature=0.1,
+            response_format={"type": "json_object"}
         )
         return completion.choices[0].message.content
     except Exception as e:
@@ -126,7 +127,8 @@ def call_groq_api(system_prompt, user_prompt, tracker, stage_name):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.1
+                temperature=0.1,
+                response_format={"type": "json_object"}
             )
             return completion.choices[0].message.content
         except Exception as e2:
