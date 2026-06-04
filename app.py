@@ -100,7 +100,7 @@ def parse_json_robust(text):
 def call_groq_api(system_prompt, user_prompt, tracker, stage_name):
     """Executes a Groq chat completion call with automatic 2-second retry on failure."""
     # Throttle requests to stay under free tier TPM (Tokens Per Minute) limit
-    time.sleep(3)
+    time.sleep(1.5)
     
     groq_client = get_groq_client()
     try:
@@ -507,40 +507,49 @@ def validate_schemas_only(schemas_json, intent_json, design_json=None, tracker=N
         return repair_json(raw_res, tracker, "Stage 4 - Validate Check")
 
 def validate_and_repair(schemas_json, intent_json, tracker=None):
-    """Stage 4: Performs a fast single-pass integrity check of the generated schemas.
-    Repair regeneration is skipped to keep latency low — Stage 3 schemas are already
-    structurally validated at generation time."""
-    logger.info("[Stage 4] Starting fast single-pass validation check...")
+    """Stage 4: Pure Python structural validation — zero LLM calls.
+    Checks that all 4 schema blocks exist and have their required array fields.
+    Completes in milliseconds with no Groq API dependency."""
+    logger.info("[Stage 4] Starting pure-Python structural validation (no LLM call)...")
 
-    # Standardize schema keys first so evaluation functions can find the right keys
+    # Standardize schema keys
     final_schemas = {
-        "ui_schema": schemas_json.get("ui_schema") or schemas_json.get("ui") or {},
-        "api_schema": schemas_json.get("api_schema") or schemas_json.get("api") or {},
-        "db_schema": schemas_json.get("db_schema") or schemas_json.get("database") or {},
-        "auth_schema": schemas_json.get("auth_schema") or schemas_json.get("auth") or {}
+        "ui_schema":   schemas_json.get("ui_schema")   or schemas_json.get("ui")       or {},
+        "api_schema":  schemas_json.get("api_schema")  or schemas_json.get("api")      or {},
+        "db_schema":   schemas_json.get("db_schema")   or schemas_json.get("database") or {},
+        "auth_schema": schemas_json.get("auth_schema") or schemas_json.get("auth")     or {}
     }
 
-    # Single validation check — no repair loop, no second pass
-    try:
-        check_res = validate_schemas_only(final_schemas, intent_json, tracker=tracker)
-    except Exception as e:
-        logger.warning(f"[Stage 4] Validation check failed with exception: {e}. Proceeding with passed=True.")
-        check_res = {"errors_found": [], "repairs_needed": [], "passed": True}
+    errors_found = []
 
-    errors_found = check_res.get("errors_found") or []
-    repairs_needed = check_res.get("repairs_needed") or []
-    passed = check_res.get("passed", True)
+    # Check UI schema has pages list
+    ui = final_schemas["ui_schema"]
+    if not isinstance(ui.get("pages"), list) or len(ui.get("pages", [])) == 0:
+        errors_found.append("ui_schema missing pages array.")
 
-    # If there are only minor issues (<=2 errors), treat as passed to avoid over-repair
-    if len(errors_found) <= 2:
-        passed = True
+    # Check API schema has endpoints list
+    api = final_schemas["api_schema"]
+    if not isinstance(api.get("endpoints"), list) or len(api.get("endpoints", [])) == 0:
+        errors_found.append("api_schema missing endpoints array.")
 
-    logger.info(f"[Stage 4] Validation complete. Passed: {passed}. Errors found: {len(errors_found)}.")
+    # Check DB schema has tables list
+    db = final_schemas["db_schema"]
+    if not isinstance(db.get("tables"), list) or len(db.get("tables", [])) == 0:
+        errors_found.append("db_schema missing tables array.")
+
+    # Check Auth schema has roles
+    auth = final_schemas["auth_schema"]
+    roles = auth.get("roles") or auth.get("user_roles")
+    if not roles:
+        errors_found.append("auth_schema missing roles.")
+
+    passed = len(errors_found) == 0
+    logger.info(f"[Stage 4] Structural check done. Passed: {passed}. Issues: {errors_found}")
 
     return {
         "validated_schemas": final_schemas,
         "validation_report": {
-            "errors_found": errors_found if not passed else [],
+            "errors_found": errors_found,
             "repairs_made": [],
             "passed": passed
         }
