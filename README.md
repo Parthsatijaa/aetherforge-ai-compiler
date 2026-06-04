@@ -54,7 +54,7 @@ Follow these steps to host your application live on Render:
    - **Language**: `Python`
    - **Branch**: `main` (or your active branch)
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn app:app` (Render automatically uses gunicorn to host Flask in production)
+   - **Start Command**: `gunicorn app:app --timeout 120` (Gunicorn timeout is increased to allow the sequential AI pipeline to finish without worker timeouts)
 4. **Add Environment Variables**:
    - Under the **Environment** tab, click **Add Environment Variable**.
    - Set Key: `GROQ_API_KEY`
